@@ -1,0 +1,40 @@
+{
+  "name": "dsh-her-memory",
+  "version": "1.5.4",
+  "description": "DSH 全局长期记忆 + 心情状态插件：六个工具、纯 Markdown 存储、零依赖、工作区可选隔离",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web"
+    }
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "人设文件.txt",
+    "README.md",
+    "更新日志.md"
+  ],
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "cordis",
+    "plugin",
+    "memory",
+    "companion"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  }
+}
