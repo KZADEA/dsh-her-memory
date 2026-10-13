@@ -701,10 +701,8 @@ function wsKey(agent) {
  * ------------------------------------------------------------------ */
 
 export function apply(ctx, options = {}) {
-  // 配置来源：第二参数与 ctx.config **都吃**（第二参数优先）。
-  // 为什么合并：不同加载方式把 config 放的位置不一样（bundle patch → 第二参数 / cordis 的 ctx.config），
-  // 只认一个的话，另一种加载方式下配置会**静默失效**（人设一个字都进不去）。
-  const cfg = resolveConfig({ ...(ctx?.config ?? {}), ...(options ?? {}) });
+  // 配置来源：第二参数优先，其次 ctx.config（不同加载方式都能拿到）
+  const cfg = resolveConfig(options ?? ctx?.config);
   /** 被隔离的工作区（由配置决定；留空 = 不隔离）。 */
   sandboxCwd = cfg.sandboxCwd;
   /** 记忆根（所有工作区的父目录）。 */
