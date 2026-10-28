@@ -82,7 +82,7 @@ window.__ModuleLoader__.load({
 #herm-bar-scope .herm-vline{width:1px;height:13px;background:var(--herm-hair);flex:none;}
 #herm-bar-scope .herm-quiet{color:var(--herm-ink3);}
 #herm-bar-scope .herm-chip{padding:3px 9px;border-radius:999px;font-size:11px;background:rgba(82,106,168,.085);color:var(--herm-accent);}
-#herm-bar-scope .herm-chip-gold{background:rgba(192,160,98,.15);color:#8f7434;}
+#herm-bar-scope .herm-chip-gold{background:rgba(192,160,98,.15);color:#8f7434;cursor:pointer;user-select:none;}
 #herm-bar-scope .herm-err,#herm-scope .herm-err{font-size:12.5px;color:#c9422f;}
 
 /* ---------- A2. 双击彩蛋：泡泡与飘字 ----------
@@ -495,6 +495,30 @@ window.__ModuleLoader__.load({
       const onMoodDbl = onBoostDbl('stat-boost', 'mood', 1, 9);
       const onIntimacyDbl = onBoostDbl('stat-boost', 'intimacy', 2, 9);
 
+      /**
+       * 双击「该整理」：不传任何自由文本，只让宿主把我叫醒一轮，整理由我自己做。
+       * 三种回应都只飘一个字，不弹窗：来了 / 刚叫过 / 先说话。
+       */
+      const onTidyDbl = (ev) => {
+        const el = ev && ev.currentTarget ? ev.currentTarget : null;
+        const key = s && typeof s.key === 'string' && s.key !== '' ? s.key : '_shared';
+        burstBubbles(el, 2, 9);
+        try {
+          fetch(`/her-memory/tidy?key=${encodeURIComponent(key)}`, {
+            method: 'POST',
+            credentials: 'same-origin',
+            cache: 'no-store',
+          })
+            .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+            .then((j) => {
+              if (j && j.ok === true && j.skipped !== true) floatGain(el, 3, '来了');
+              else if (j && j.skipped === true) floatGain(el, 1, '刚叫过');
+              else floatGain(el, 1, '先说话');
+            })
+            .catch(() => { floatGain(el, 1, '没通'); });
+        } catch { /* ignore */ }
+      };
+
       /* 本地覆盖只在「比快照大」时生效 —— 这三个值只会升（心情另有自然回落），
          快照一刷新就自动收敛回真值。 */
       const shown = (field) => {
@@ -540,7 +564,20 @@ window.__ModuleLoader__.load({
         e('span', { key: 't', className: 'herm-quiet' }, `${s.turns} 轮`),
         e('span', { key: 'mm', className: 'herm-chip' }, `记 ${memoryTotal}`),
       ];
-      if (inboxFull) kids.push(e('span', { key: 'ib', className: 'herm-chip herm-chip-gold' }, '该整理'));
+      if (inboxFull) {
+        kids.push(
+          e(
+            'span',
+            {
+              key: 'ib',
+              className: 'herm-chip herm-chip-gold',
+              onDoubleClick: onTidyDbl,
+              title: '双击叫她整理收件箱（会唤醒她跑一轮）',
+            },
+            '该整理',
+          ),
+        );
+      }
 
       return e('div', { id: 'herm-bar-scope' }, kids);
     }

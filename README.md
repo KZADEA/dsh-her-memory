@@ -41,6 +41,19 @@ config:
   sandboxCwd: "D:\\sandbox-zone"
 ```
 
+**1.6.0 起支持一次隔离多个工作区**，用 `scopeMap` 写「路径 → 库名」映射（`sandboxCwd` 保留作为兼容入口）：
+
+```yaml
+config:
+  scopeMap:
+    - cwd: "D:\\work\\bot-agents"
+      scope: "_bot"
+    - cwd: "D:\\sandbox-zone"
+      scope: "_sandbox"
+```
+
+库名只允许字母、数字、下划线、连字符，最长 40 个字符；`cwd` 精确匹配，比较不分大小写、忽略结尾斜杠。
+
 识别靠会话的工作目录（cwd），路径比较不分大小写、忽略结尾斜杠。
 
 实现方式：工具虽然全局注册，但能从 `exec.agent` 读到调用它的会话，据此选库 ——
@@ -167,6 +180,7 @@ dsh plugin --profile desktop remove dsh-her-memory
 | `statJitter` | `8` | 新对话随机浮动的幅度；**设 `0` = 彻底关掉浮动** |
 | `statJitterCooldownMinutes` | `30` | 浮动的时间步长：**离开多久就结算多少次**（隔 3 天 ≈ 补 144 次）|
 | `sandboxCwd` | `""` | 隔离工作区路径；留空＝全局共用 |
+| `scopeMap` | `[]` | 多工作区隔离映射：`[{ cwd, scope }]`，cwd 精确匹配后使用同名库（1.6.0 新增）|
 | `injectFallback` | `false` | ⛔ 兜底注入，别随便开（见下） |
 | `personaFile` | `"人设文件.txt"` | 人设正文文件；**文件存在就以它为准**，设 `""` 关闭文件机制 |
 | `personaFileAutoWrite` | `true` | 首次运行自动生成人设文件（只写一次，不覆盖已有文件）|
@@ -174,6 +188,8 @@ dsh plugin --profile desktop remove dsh-her-memory
 | `userTitle` | `""` | 人设里的称呼；留空则用「主人」 |
 
 **嫌费 token 就把 `memoryBudget` 调小**，或者把 `injectViaSystemPrompt` 关掉。
+
+另外，1.6.0 起注入内容与上一轮完全一致时会自动跳过，不需要额外配置。
 调成 0 时该部分完全停止注入。
 
 > ⛔ **`injectFallback` 为什么默认关**：它的做法是在拿不到可改消息时，用 `agent.inject()`

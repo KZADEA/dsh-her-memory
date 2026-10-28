@@ -1,7 +1,7 @@
 {
   "name": "dsh-her-memory",
-  "version": "1.5.6",
-  "description": "DSH 全局长期记忆 + 心情状态插件：六个工具、纯 Markdown 存储、零依赖、工作区可选隔离",
+  "version": "1.6.0",
+  "description": "她的记忆与心情 —— 全局长期记忆 + 情感状态插件（零依赖、纯 Markdown、可审计可回滚）",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/KZADEA/dsh-her-memory.git"
